@@ -6,6 +6,7 @@ import 'package:flutter_application_1/categpryprovider.dart';
 import 'package:flutter_application_1/detailPgae.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class CategoryListPage extends StatelessWidget {
@@ -66,8 +67,8 @@ class CategoryListPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset("assets/no_data.png",
-                      height: 150), // Replace with an appropriate image
+                  Lottie.asset("lib/Animations/emptybox.json",
+                      height: 150), // Replace with an appropriate imag
                   SizedBox(height: 10),
                   Text(
                     "No listings available for this category.",

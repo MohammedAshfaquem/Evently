@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/auth/auth_service.dart';
 import 'package:flutter_application_1/signuppage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+final _loginformkey = GlobalKey<FormState>();
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final VoidCallback showRegisterpage;
+
+  const LoginPage({super.key, required this.showRegisterpage});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -32,8 +36,27 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
+  void loginemail() async {
+    final authservice = Authservice();
 
-  
+    try {
+      await authservice.signInWithEmailAndPassword(
+          _emailController.text, _passwordController.text);
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            e.toString(),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          ),
+        ),
+      );
+             print("error:${e.toString()}");
+    }
+  }
+
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -43,62 +66,67 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Form(
-               // key: _formKey,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 80,
-                    ),
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Email",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+    return Form(
+      key: _loginformkey,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Form(
+                  // key: _formKey,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 80,
                       ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    _buildTextField(
-                        controller: _emailController,
-                        hintText: "Email",
-                        icon: Icons.email,
-                        validator: _validateEmail),
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Password",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          "Email",
+                          style:
+                              GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    _buildTextField(
-                        controller: _passwordController,
-                        hintText: "Password",
-                        icon: Icons.lock,
-                        isPassword: true,
-                        validator: _validatePassword),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    _buildLoginButton(),
-                    _buildRegisterRedirect(),
-                  ],
+                      SizedBox(
+                        height: 15,
+                      ),
+                      _buildTextField(
+                          controller: _emailController,
+                          hintText: "Email",
+                          icon: Icons.email,
+                          validator: _validateEmail),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          "Password",
+                          style:
+                              GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      _buildTextField(
+                          controller: _passwordController,
+                          hintText: "Password",
+                          icon: Icons.lock,
+                          isPassword: true,
+                          validator: _validatePassword),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      _buildLoginButton(),
+                      _buildRegisterRedirect(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -182,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildLoginButton() {
     return GestureDetector(
-      //onTap: _login,
+    onTap: () => loginemail(),
       child: Container(
         height: 50.h,
         width: double.infinity,
@@ -210,14 +238,7 @@ class _LoginPageState extends State<LoginPage> {
           Text("Don't have an account?",
               style: TextStyle(color: Colors.black, fontSize: 14.sp)),
           TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RegisterPage(),
-                  ));
-              // Navigate to Register Page
-            },
+            onPressed: widget.showRegisterpage,
             child: Text("Sign Up",
                 style: TextStyle(
                     color: Colors.pinkAccent.shade100,

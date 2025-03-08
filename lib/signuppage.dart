@@ -1,18 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Homepage/homepgae.dart';
+import 'package:flutter_application_1/emailverification.dart';
 import 'package:flutter_application_1/login.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ignore: camel_case_types
-final _formkey = GlobalKey<FormState>();
+final _signformkey = GlobalKey<FormState>();
 
 class RegisterPage extends StatefulWidget {
-  //final VoidCallback showloginpage;
+  final VoidCallback showloginpage;
   const RegisterPage({
     super.key,
-    //required this.showloginpage,
+    required this.showloginpage,
   });
 
   @override
@@ -102,41 +105,43 @@ class _RegisterpageState extends State<RegisterPage> {
       return print("false"); // Exit the function if the name is empty
     }
     if (passwordConfirmed()) {
-      // try {
-      //   UserCredential userCredential = await FirebaseAuth.instance
-      //       .createUserWithEmailAndPassword(
-      //           email: regemailcontroller.text.trim(),
-      //           password: regpasswordcontroller.text.trim());
-      //   // Send email verification
-      //   await userCredential.user?.sendEmailVerification();
-      //   // Save user data and creation timestamp to Firestore
-      //   String uid = userCredential.user!.uid;
-      //   await FirebaseFirestore.instance.collection('users').doc(uid).set({
-      //     'email': regemailcontroller.text,
-      //     'name': regnamecontroller.text,
-      //     'emailVerified': false,
-      //     'createdAt': FieldValue.serverTimestamp(), // Store creation time
-      //     'password': regconfirmpasscontroller.text,
-      //     'uid': uid,
-      //   });
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: regemailcontroller.text.trim(),
+                password: regpasswordcontroller.text.trim());
+        // Send email verification
+        await userCredential.user?.sendEmailVerification();
+        // Save user data and creation timestamp to Firestore
+        String uid = userCredential.user!.uid;
+        await FirebaseFirestore.instance.collection('Users').doc(uid).set({
+          'email': regemailcontroller.text,
+          'name': regnamecontroller.text,
+          'emailVerified': false,
+          'createdAt': FieldValue.serverTimestamp(), // Store creation time
+          'password': regconfirmpasscontroller.text,
+          'uid': uid,
+          'imageBase64':"",
+        });
 
-      //   Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => VerifyEmailPage(),
-      //     ),
-      //   );
-      // } catch (e) {
-      //   showDialog(
-      //     context: context,
-      //     builder: (context) => AlertDialog(
-      //       title: Text(
-      //         e.toString(),
-      //         style: TextStyle(color: Colors.black),
-      //       ),
-      //     ),
-      //   );
-      // }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerifyEmailPage(),
+          ),
+        );
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              e.toString(),
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        );
+        print("error:${e.toString()}");
+      }
     }
   }
 
@@ -156,7 +161,7 @@ class _RegisterpageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formkey,
+      key: _signformkey,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SingleChildScrollView(
@@ -430,12 +435,7 @@ class _RegisterpageState extends State<RegisterPage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              //signupEmail();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Homepage(),
-                                  ));
+                              signupEmail();
                             },
                             child: Padding(
                               padding: EdgeInsets.only(right: 20.w),
@@ -475,14 +475,7 @@ class _RegisterpageState extends State<RegisterPage> {
                                 width: 5.w,
                               ),
                               GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => LoginPage(),
-                                      ));
-                                },
-                                //widget.showloginpage,
+                                onTap: widget.showloginpage,
                                 child: Text(
                                   "Login",
                                   style: TextStyle(
