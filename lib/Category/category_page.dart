@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/categorylistpage.dart';
-import 'package:flutter_application_1/persondetails.dart';
+import 'package:flutter_application_1/hostdetailspage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 
 class CategorySelectionPage extends StatelessWidget {
   final bool isHoster;
-  
 
   const CategorySelectionPage({super.key, required this.isHoster});
 
@@ -46,22 +45,14 @@ class CategorySelectionPage extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               if (isHoster) {
-                // Navigate to hoster form
+                //Navigate to hoster form
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => HostDetailsForm(
                             category: categories[index]
                                 ["name"]!, // Fetching the name
-                            image: categories[index]["image"]!,
-                          )
-                      // HostDetailsForm(
-                      //       category: categories[index]
-                      //           ["name"]!, // Fetching the name
-                      //       image: categories[index]["image"]!,
-                      //     )
-
-                      ),
+                          )),
                 );
               } else {
                 // Navigate to guest view of the category
@@ -70,10 +61,6 @@ class CategorySelectionPage extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => CategoryListPage(
                       category: categories[index]["name"]!, // Fetching the name
-                      eventimage: categories[index]["image"]!,
-                      
-
-
                     ),
                   ),
                 );

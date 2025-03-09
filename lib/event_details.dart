@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/person.dart';
+import 'package:flutter_application_1/person_details.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class HostDetailsForm extends StatefulWidget {
-  final String event;
+  final String category;
 
-  const HostDetailsForm({super.key, required this.event});
+  const HostDetailsForm({super.key, required this.category});
 
   @override
   _HostDetailsFormState createState() => _HostDetailsFormState();
@@ -20,8 +20,7 @@ class _HostDetailsFormState extends State<HostDetailsForm> {
   File? _selectedImage;
 
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
@@ -35,11 +34,12 @@ class _HostDetailsFormState extends State<HostDetailsForm> {
         context,
         MaterialPageRoute(
           builder: (context) => PersonDetailsForm(
-            eventname: widget.event,
+            eventname: widget.category,
             location: locationController.text,
             amount: amountController.text,
             description: descriptionController.text,
             image: _selectedImage,
+            category: widget.category,
           ),
         ),
       );
@@ -49,7 +49,7 @@ class _HostDetailsFormState extends State<HostDetailsForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Host ${widget.event}")),
+      appBar: AppBar(title: Text("Host ${widget.category}")),
       body: Form(
         key: _formKey,
         child: ListView(

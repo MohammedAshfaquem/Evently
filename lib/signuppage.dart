@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Homepage/homepgae.dart';
+import 'package:flutter_application_1/Homepage/homepage.dart';
 import 'package:flutter_application_1/emailverification.dart';
 import 'package:flutter_application_1/login.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -121,7 +121,7 @@ class _RegisterpageState extends State<RegisterPage> {
           'createdAt': FieldValue.serverTimestamp(), // Store creation time
           'password': regconfirmpasscontroller.text,
           'uid': uid,
-          'imageBase64':"",
+          'image':"",
         });
 
         Navigator.pushReplacement(

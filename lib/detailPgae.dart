@@ -71,8 +71,8 @@ class _EventDetailspageState extends State<EventDetailspage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(30).w,
-                  child: Image.file(
-                    File(widget.imageurl),
+                  child: Image.network(
+                    widget.imageurl,
                     width: 500.w,
                     height: 200.h,
                     fit: BoxFit.fill,
@@ -109,7 +109,7 @@ class _EventDetailspageState extends State<EventDetailspage> {
                                   style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black)),
-                              Text("Time",
+                              Text(widget.time,
                                   style: TextStyle(color: Colors.white)),
                             ],
                           ),
@@ -164,20 +164,7 @@ class _EventDetailspageState extends State<EventDetailspage> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        QuickAlert.show(
-                          context: context,
-                          type: QuickAlertType.confirm,
-                          title: "Please confirm your order",
-                          animType: QuickAlertAnimType.scale,
-                          showCancelBtn: true,
-                          onConfirmBtnTap: () {
-                            Navigator.pop(context);
-                            IconSnackBar.show(context,
-                                duration: Duration(seconds: 2),
-                                snackBarType: SnackBarType.success,
-                                label: 'Your order has been confirmed.');
-                          },
-                        );
+                       
                       },
                       child: Container(
                         height: 50.h,
