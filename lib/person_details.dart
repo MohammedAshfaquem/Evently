@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/My%20Events/firestoremyevents.dart';
 import 'package:flutter_application_1/categorylistpage.dart';
 import 'package:flutter_application_1/firestoreservuce.dart';
 import 'package:flutter_application_1/textformfiledmodel.dart';
@@ -39,6 +41,9 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final FireStoreService fireStoreService = FireStoreService();
+  final FireStoreMyServivce fireStoreMyServivce = FireStoreMyServivce();
+  String eventId = FirebaseFirestore.instance.collection('Events').doc().id;
+
 
   static const String imgBBApiKey = "ed8e4023ff7954cf55bdc23a566d1efa";
 
@@ -80,7 +85,20 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
         description: widget.description,
         image: imageUrl ?? "NO_IMAGE",
         time: DateTime.now(),
-        eventId: Random().nextInt(1000000).toString(),
+        eventId: eventId,
+
+      );
+      await fireStoreMyServivce.addmyevents(
+        widget.category,
+        "${firstNameController.text} ${lastNameController.text}",
+        contactController.text,
+        widget.eventname,
+        widget.location,
+        widget.amount,
+        widget.description,
+        imageUrl ?? "NO_IMAGE",
+        DateTime.now(),
+        eventId,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

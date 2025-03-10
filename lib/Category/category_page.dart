@@ -32,7 +32,7 @@ class CategorySelectionPage extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             )),
         elevation: 0,
-        title: Text(isHoster ? "Host an Event" : "Find an Event",
+        title: Text(isHoster ? "Vendor Event" : "Find an Event",
             style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0,

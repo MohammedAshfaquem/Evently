@@ -167,7 +167,7 @@ class _HomepageState extends State<Homepage> {
                                         CategorySelectionPage(isHoster: true)),
                               );
                             },
-                            text: "Host",
+                            text: "Vendor",
                             imageurl: 'lib/images/support.png'),
                         SizedBox(width: 10.w),
                         DonateCard(
@@ -180,7 +180,7 @@ class _HomepageState extends State<Homepage> {
                                         CategorySelectionPage(isHoster: false)),
                               );
                             },
-                            text: "Guest",
+                            text: "Find Event",
                             imageurl: 'lib/images/find.png'),
                       ],
                     ),

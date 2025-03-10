@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/categpryprovider.dart';
 import 'package:flutter_icon_snackbar/flutter_icon_snackbar.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -18,6 +21,7 @@ class EventDetailspage extends StatefulWidget {
   var userimage;
   var amount;
   var location;
+  var eventId;
 
   EventDetailspage({
     super.key,
@@ -30,6 +34,7 @@ class EventDetailspage extends StatefulWidget {
     this.hostname,
     this.amount,
     this.location,
+    required this.eventId,
   });
 
   @override
@@ -41,6 +46,61 @@ class _EventDetailspageState extends State<EventDetailspage> {
 
   @override
   Widget build(BuildContext context) {
+    void showBookingDialog(BuildContext context, String eventId) {
+      TextEditingController nameController = TextEditingController();
+      TextEditingController contactController = TextEditingController();
+      TextEditingController addressController = TextEditingController();
+      String userId =
+          FirebaseAuth.instance.currentUser!.uid; // Get logged-in user ID
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Book Event"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: "Your Name"),
+                ),
+                TextField(
+                  controller: contactController,
+                  decoration: InputDecoration(labelText: "Contact Number"),
+                  keyboardType: TextInputType.phone,
+                ),
+                TextField(
+                  controller: addressController,
+                  decoration: InputDecoration(labelText: "Address"),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context), // Close dialog
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await FirebaseFirestore.instance.collection("Bookings").add({
+                    'eventId': eventId,
+                    'userId': userId,
+                    'bookerName': nameController.text,
+                    'bookerContact': contactController.text,
+                    'bookerAddress': addressController.text,
+                    'timestamp': FieldValue.serverTimestamp(),
+                  });
+                  Navigator.pop(context); // Close dialog after saving
+                },
+                child: Text("Book Now"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -164,11 +224,35 @@ class _EventDetailspageState extends State<EventDetailspage> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                       
+                        showBookingDialog(context, widget.eventId);
                       },
                       child: Container(
                         height: 50.h,
-                        width: 350,
+                        width: 100.w,
+                        child: Center(
+                            child: Text(
+                          "Book",
+                          style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 19),
+                        )),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12).w,
+                            color: Colors.pinkAccent.shade100),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10.w,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        await FlutterPhoneDirectCaller.callNumber(
+                            widget.cntctno);
+                      },
+                      child: Container(
+                        height: 50.h,
+                        width: 230,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12).w,
                             color: Colors.pinkAccent.shade100),
@@ -180,11 +264,11 @@ class _EventDetailspageState extends State<EventDetailspage> {
                                     border: Border.all(color: Colors.pink),
                                     borderRadius: BorderRadius.circular(12)),
                                 height: 60,
-                                width: 80,
+                                width: 60,
                                 child: Icon(Icons.call,
                                     color: Colors.pink.shade400)),
                             Container(
-                              width: 250,
+                              width: 160,
                               height: 60,
                               child: Center(
                                 child: Text(widget.cntctno,
