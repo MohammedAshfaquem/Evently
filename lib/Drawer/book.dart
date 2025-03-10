@@ -31,8 +31,7 @@ class BookingDetailsPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("Bookings")
-            .where("userId",
-                isEqualTo: currentUserUid) // Fetch bookings for current hoster
+            .where("hosteruid", isEqualTo: currentUserUid) // ✅ Fix: Fetch bookings where I am the host
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -60,9 +59,7 @@ class BookingDetailsPage extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(
-                        width: 2.w,
-                      ),
+                      SizedBox(width: 2.w),
                       Container(
                         height: 90.h,
                         width: 60.w,
@@ -114,18 +111,6 @@ class BookingDetailsPage extends StatelessWidget {
                   ),
                 ),
               );
-              //ListTile(
-              //   title: Text("Booker: ${bookingData['bookerName']}"),
-              //   subtitle: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       Text("Contact: ${bookingData['bookerContact']}"),
-              //       Text("Address: ${bookingData['bookerAddress']}"),
-              //       Text("Event ID: ${bookingData['eventId']}"), // Optional
-              //     ],
-              //   ),
-              //   leading: Icon(Icons.person),
-              // );
             },
           );
         },

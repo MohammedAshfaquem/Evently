@@ -138,6 +138,8 @@ class CategoryListPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EventDetailspage(
+                          userid: eventData['uid'] ?? "No user",
+                          category: eventData['category'] ?? "No Category",
                           eventId: eventData['eventid'] ?? "No id",
                           imageurl: eventData['image'] ?? "",
                           cntctno: eventData['number'] ?? "No Contact",

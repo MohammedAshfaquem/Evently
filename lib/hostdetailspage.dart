@@ -35,7 +35,7 @@ class _HostDetailsFormState extends State<HostDetailsForm> {
   //         length, (_) => characters[random.nextInt(characters.length)]).join();
   //   }
 
-  final _formKey = GlobalKey<FormState>();
+  final _eventdetailsformKey = GlobalKey<FormState>();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -53,7 +53,7 @@ class _HostDetailsFormState extends State<HostDetailsForm> {
   }
 
  void _goToPersonDetails() {
-  if (_formKey.currentState!.validate()) {
+  if (_eventdetailsformKey.currentState!.validate()) {
     if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -96,7 +96,7 @@ class _HostDetailsFormState extends State<HostDetailsForm> {
         backgroundColor: Colors.pinkAccent.shade100,
       ),
       body: Form(
-        key: _formKey,
+        key: _eventdetailsformKey,
         child: SingleChildScrollView(
           child: Column(
             children: [

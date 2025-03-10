@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/auth/auth_service.dart';
-import 'package:flutter_application_1/signuppage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-final _loginformkey = GlobalKey<FormState>();
 
 class LoginPage extends StatefulWidget {
   final VoidCallback showRegisterpage;
 
-  const LoginPage({super.key, required this.showRegisterpage});
+  LoginPage({super.key, required this.showRegisterpage});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -17,7 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isPasswordObscured = true;
-
+  final _loginformkey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -36,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
+
   void loginemail() async {
     final authservice = Authservice();
 
@@ -52,10 +50,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       );
-             print("error:${e.toString()}");
+      print("error:${e.toString()}");
     }
   }
-
 
   @override
   void dispose() {
@@ -210,7 +207,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildLoginButton() {
     return GestureDetector(
-    onTap: () => loginemail(),
+      onTap: () => loginemail(),
       child: Container(
         height: 50.h,
         width: double.infinity,

@@ -133,17 +133,58 @@ class _MyDrawerState extends State<MyDrawer> {
     try {
       String userId = currentUser.uid;
 
-      // Step 1: Delete the user's data from Firestore
+      // Step 1: Delete user's events from Firestore (from all categories)
+      List<String> eventCategories = [
+        "Camera Man",
+        "Makeup Artist",
+        "Caterers",
+        "Invitations"
+      ];
+
+      for (String category in eventCategories) {
+        QuerySnapshot eventsSnapshot = await _firestore
+            .collection("Events")
+            .doc(category)
+            .collection("Listings")
+            .where('uid', isEqualTo: userId)
+            .get();
+
+        for (var doc in eventsSnapshot.docs) {
+          await doc.reference.delete();
+        }
+      }
+      print("User's events deleted from all categories.");
+
+      // Step 2: Delete user's bookings
+      QuerySnapshot bookingsSnapshot = await _firestore
+          .collection('Bookings')
+          .where('userId', isEqualTo: userId)
+          .get();
+      for (var doc in bookingsSnapshot.docs) {
+        await doc.reference.delete();
+      }
+      print("User's bookings deleted.");
+
+      // Step 3: Delete user's feedback
+      QuerySnapshot feedbackSnapshot = await _firestore
+          .collection('Feedback')
+          .where('uid', isEqualTo: userId)
+          .get();
+      for (var doc in feedbackSnapshot.docs) {
+        await doc.reference.delete();
+      }
+      print("User's feedback deleted.");
+
+      // Step 4: Delete user data from Firestore (Users collection)
       await _firestore.collection('Users').doc(userId).delete();
       print("User data deleted from Firestore.");
 
-      // Step 2: Delete the user from Firebase Authentication
+      // Step 5: Delete user account from Firebase Authentication
       await currentUser.delete();
       print("User account deleted from Firebase Authentication.");
 
-      // Redirect to login or home screen after deletion
-      Navigator.pushReplacementNamed(
-          context, '/login'); // Adjust route as needed
+      // Redirect to login screen after deletion
+      Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       print("Error deleting user: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -412,19 +453,37 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           ProfilePageTile(
             onTap: () {
-              QuickAlert.show(
+              showDialog(
                 context: context,
-                type: QuickAlertType.warning,
-                title: 'Do you want to delete your account?',
-                confirmBtnText: 'Yes',
-                cancelBtnText: 'No',
-                showCancelBtn: true,
-                confirmBtnColor: Colors.red,
-                onCancelBtnTap: () => Navigator.pop(context),
-                onConfirmBtnTap: () async {
-                  await _deleteUser(context); // Call the function properly
-                  Navigator.pop(
-                      context); // Close the alert after deleting the user
+                barrierDismissible:
+                    false, // Prevents closing when tapping outside
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Do you want to delete your account?'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          10.0), // Optional rounded corners
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close alert on cancel
+                        },
+                        child: Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await _deleteUser(
+                              context); // Call the function properly
+                          Navigator.pop(
+                              context); // Close the alert after deleting the user
+                        },
+                        style:
+                            TextButton.styleFrom(foregroundColor: Colors.red),
+                        child: Text('Yes'),
+                      ),
+                    ],
+                  );
                 },
               );
             },
@@ -434,25 +493,46 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           ProfilePageTile(
             onTap: () {
-              QuickAlert.show(
+              showDialog(
                 context: context,
-                type: QuickAlertType.warning,
-                title: 'Do you want to logout?',
-                confirmBtnText: 'Yes',
-                cancelBtnText: 'No',
-                showCancelBtn: true,
-                showConfirmBtn: true,
-                confirmBtnColor: Colors.red,
-                onCancelBtnTap: () => Navigator.pop(context),
-                onConfirmBtnTap: () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AuthGate(),
+                barrierDismissible:
+                    false, // Prevents closing when tapping outside
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Do you want to logout?'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          10.0), // Optional: Rounded corners
                     ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close alert on cancel
+                        },
+                        child: Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Close the alert dialog
+                          Navigator.pop(context);
+
+                          // Sign out user
+                          FirebaseAuth.instance.signOut();
+
+                          // Navigate to AuthGate screen
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AuthGate(),
+                            ),
+                          );
+                        },
+                        style:
+                            TextButton.styleFrom(foregroundColor: Colors.red),
+                        child: Text('Yes'),
+                      ),
+                    ],
                   );
-                  Navigator.pop(context);
                 },
               );
             },

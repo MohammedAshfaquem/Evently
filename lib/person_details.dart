@@ -35,7 +35,7 @@ class PersonDetailsForm extends StatefulWidget {
 }
 
 class _PersonDetailsFormState extends State<PersonDetailsForm> {
-  final _formKey = GlobalKey<FormState>();
+  final _personformKey = GlobalKey<FormState>();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController contactController = TextEditingController();
@@ -70,7 +70,7 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
   }
 
   void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
+    if (_personformKey.currentState!.validate()) {
       String? imageUrl = widget.image != null
           ? await _uploadImageToImgBB(widget.image!)
           : null;
@@ -127,7 +127,7 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
         backgroundColor: Colors.pinkAccent.shade100,
       ),
       body: Form(
-        key: _formKey,
+        key: _personformKey,
         child: SingleChildScrollView(
           child: Column(
             children: [

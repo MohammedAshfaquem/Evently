@@ -4,7 +4,6 @@ import 'package:flutter_application_1/hostdetailspage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:provider/provider.dart';
 
 class CategorySelectionPage extends StatelessWidget {
   final bool isHoster;
@@ -20,7 +19,6 @@ class CategorySelectionPage extends StatelessWidget {
       {"name": "Caterers", "image": "lib/images/caterers.png"},
       {"name": "Auditoriums", "image": "lib/images/auditoriam.png"},
     ];
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

@@ -3,14 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/categpryprovider.dart';
-import 'package:flutter_icon_snackbar/flutter_icon_snackbar.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:quickalert/quickalert.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+// ignore: must_be_immutable
 class EventDetailspage extends StatefulWidget {
   var eventname;
   var description;
@@ -22,6 +21,8 @@ class EventDetailspage extends StatefulWidget {
   var amount;
   var location;
   var eventId;
+  var category;
+  var userid;
 
   EventDetailspage({
     super.key,
@@ -35,6 +36,8 @@ class EventDetailspage extends StatefulWidget {
     this.amount,
     this.location,
     required this.eventId,
+    required this.category,
+    required this.userid,
   });
 
   @override
@@ -50,8 +53,6 @@ class _EventDetailspageState extends State<EventDetailspage> {
       TextEditingController nameController = TextEditingController();
       TextEditingController contactController = TextEditingController();
       TextEditingController addressController = TextEditingController();
-      String userId =
-          FirebaseAuth.instance.currentUser!.uid; // Get logged-in user ID
 
       showDialog(
         context: context,
@@ -63,7 +64,7 @@ class _EventDetailspageState extends State<EventDetailspage> {
               children: [
                 TextField(
                   controller: nameController,
-                  decoration: InputDecoration(labelText: "Your Name"),
+                  decoration: InputDecoration(labelText: "Name"),
                 ),
                 TextField(
                   controller: contactController,
@@ -83,15 +84,49 @@ class _EventDetailspageState extends State<EventDetailspage> {
               ),
               TextButton(
                 onPressed: () async {
-                  await FirebaseFirestore.instance.collection("Bookings").add({
-                    'eventId': eventId,
-                    'userId': userId,
-                    'bookerName': nameController.text,
-                    'bookerContact': contactController.text,
-                    'bookerAddress': addressController.text,
-                    'timestamp': FieldValue.serverTimestamp(),
-                  });
-                  Navigator.pop(context); // Close dialog after saving
+                  if (nameController.text.isEmpty ||
+                      contactController.text.isEmpty ||
+                      addressController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please fill all fields')),
+                    );
+                    return;
+                  }
+
+                  try {
+                    User? currentUser = FirebaseAuth.instance.currentUser;
+                    if (currentUser == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('User not logged in')),
+                      );
+                      return;
+                    }
+
+                    // ✅ Add booking to Firestore
+                    await FirebaseFirestore.instance
+                        .collection("Bookings")
+                        .add({
+                      'eventId': eventId,
+                      'bookerId': currentUser.uid, // Store the booker's ID
+                      'bookerName': nameController.text,
+                      'hosteruid': widget.userid,
+                      'bookerContact': contactController.text,
+                      'bookerAddress': addressController.text,
+                      'timestamp': FieldValue.serverTimestamp(),
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Booking successful!')),
+                    );
+
+                    Navigator.pop(context); // Close dialog after saving
+                  } catch (e) {
+                    print("Error while booking: $e");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
+                  Navigator.pop(context);
                 },
                 child: Text("Book Now"),
               ),
@@ -99,6 +134,63 @@ class _EventDetailspageState extends State<EventDetailspage> {
           );
         },
       );
+    }
+
+    void checkAndShowBookingDialog(
+        BuildContext context, String category, String eventId) async {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User not logged in')),
+        );
+        return;
+      }
+
+      try {
+        // 🔹 Fetch event details to get the event host's UID
+        DocumentSnapshot eventSnapshot = await FirebaseFirestore.instance
+            .collection("Events")
+            .doc(category) // Event category
+            .collection("Listings")
+            .doc(eventId) // Fetch event by ID
+            .get();
+
+        if (!eventSnapshot.exists) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Event not found!')),
+          );
+          return;
+        }
+
+        String eventOwnerId = eventSnapshot['uid']; // Get the host's UID
+
+        // ✅ Prevent self-booking
+        if (currentUser.uid == eventOwnerId) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('You cannot book your own event!')),
+          );
+          return;
+        }
+
+        // ✅ Show booking dialog if the user is not the host
+        showBookingDialog(context, eventId);
+      } catch (e) {
+        print("Error while checking event: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+
+    Future<void> _makePhoneCall() async {
+      final Uri phoneUri = Uri.parse('tel:${widget.cntctno}');
+
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        throw 'Could not launch $phoneUri';
+      }
     }
 
     return Scaffold(
@@ -224,7 +316,8 @@ class _EventDetailspageState extends State<EventDetailspage> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        showBookingDialog(context, widget.eventId);
+                        checkAndShowBookingDialog(
+                            context, widget.category, widget.eventId);
                       },
                       child: Container(
                         height: 50.h,
@@ -245,29 +338,26 @@ class _EventDetailspageState extends State<EventDetailspage> {
                     SizedBox(
                       width: 10.w,
                     ),
-                    GestureDetector(
-                      onTap: () async {
-                        await FlutterPhoneDirectCaller.callNumber(
-                            widget.cntctno);
-                      },
-                      child: Container(
-                        height: 50.h,
-                        width: 230,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12).w,
-                            color: Colors.pinkAccent.shade100),
-                        child: Row(
-                          children: [
-                            Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(color: Colors.pink),
-                                    borderRadius: BorderRadius.circular(12)),
-                                height: 60,
-                                width: 60,
-                                child: Icon(Icons.call,
-                                    color: Colors.pink.shade400)),
-                            Container(
+                    Container(
+                      height: 50.h,
+                      width: 230,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12).w,
+                          color: Colors.pinkAccent.shade100),
+                      child: Row(
+                        children: [
+                          Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.pink),
+                                  borderRadius: BorderRadius.circular(12)),
+                              height: 60,
+                              width: 60,
+                              child: Icon(Icons.call,
+                                  color: Colors.pink.shade400)),
+                          GestureDetector(
+                            onTap: _makePhoneCall,
+                            child: Container(
                               width: 160,
                               height: 60,
                               child: Center(
@@ -278,8 +368,8 @@ class _EventDetailspageState extends State<EventDetailspage> {
                                         fontSize: 23.sp)),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
