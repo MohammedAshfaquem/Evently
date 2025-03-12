@@ -54,22 +54,31 @@ dependencies:
   firebase_auth: ^5.5.1
   firebase_storage: ^12.4.4
   image: ^4.5.3
-  mysql1: ^0.20.0
   path_provider: ^2.1.5
   http: ^1.3.0
   flutter_rating_bar: ^4.0.1
   url_launcher: ^6.2.5
+  permission_handler: ^11.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^2.3.6
+  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^5.0.0  # ✅ Correctly placed here
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+flutter_native_splash:
+  color: "#ffffff"
+  image: lib/images/logo.png
+  android_12:
+    image: lib/images/logo.png
+    icon_background_color: "#ffffff"
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "lib/images/logo.png"
+  adaptive_icon_background: "#247D7F"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

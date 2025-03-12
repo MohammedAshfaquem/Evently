@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/auth/auth_gate.dart';
-import 'package:flutter_application_1/login.dart';
-import 'package:flutter_application_1/signuppage.dart';
+import 'package:flutter_application_1/auth/login.dart';
+import 'package:flutter_application_1/auth/signuppage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class VerifyEmailPage extends StatefulWidget {

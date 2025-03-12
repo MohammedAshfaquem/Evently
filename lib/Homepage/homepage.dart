@@ -5,7 +5,7 @@ import 'package:flutter_application_1/Carousal%20Slider/imagecontroller.dart';
 import 'package:flutter_application_1/Carousal%20Slider/imagemovingmodel.dart';
 import 'package:flutter_application_1/Category/category_page.dart';
 import 'package:flutter_application_1/Homepage/donate_card.dart';
-import 'package:flutter_application_1/drawer.dart';
+import 'package:flutter_application_1/Drawer/drawer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -24,9 +24,9 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     List<imagemovingmodel> imagelist = [
-      imagemovingmodel(image: 'lib/images/makeup.jpg'),
-      imagemovingmodel(image: 'lib/images/photo.jpg'),
-      imagemovingmodel(image: 'lib/images/immage.jpg'),
+      imagemovingmodel(image: 'lib/images/audi.jpg'),
+      imagemovingmodel(image: 'lib/images/caemraman.avif'),
+      imagemovingmodel(image: "lib/images/makeupavif.avif"),
     ];
 
     return Scaffold(
@@ -61,7 +61,7 @@ class _HomepageState extends State<Homepage> {
                       height: 180.h,
                       width: 320.w,
                       decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(18.r)),
                       child: CarouselSlider(
                         options: CarouselOptions(
@@ -71,7 +71,7 @@ class _HomepageState extends State<Homepage> {
                             enlargeFactor: 0,
                             initialPage: 0,
                             enlargeCenterPage: true,
-                            viewportFraction: 1.10.r,
+                            viewportFraction: 1.0.r,
                             onPageChanged: (index, reason) {
                               Provider.of<SlideImageController>(
                                       listen: false, context)
@@ -90,6 +90,7 @@ class _HomepageState extends State<Homepage> {
                                           duration: Duration(milliseconds: 700),
                                           delay: Duration(milliseconds: 500),
                                           child: Container(
+                                            
                                             height: 178.h,
                                             width: 375.w,
                                             child: ClipRRect(
@@ -126,14 +127,14 @@ class _HomepageState extends State<Homepage> {
                   ),
                   Positioned(
                     bottom: 10.h,
-                    left: 150.w,
+                    left: 140.w,
                     child: Consumer<SlideImageController>(
                       builder: (context, value, child) =>
                           AnimatedSmoothIndicator(
                               effect: ExpandingDotsEffect(
                                 dotHeight: 8.h,
                                 dotWidth: 9.w,
-                                activeDotColor: Color(0xff247D7F),
+                                activeDotColor: Colors.pinkAccent.shade100,
                               ),
                               activeIndex: value.selectedindex,
                               count: 3),

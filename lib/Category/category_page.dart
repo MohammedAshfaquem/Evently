@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/categorylistpage.dart';
-import 'package:flutter_application_1/hostdetailspage.dart';
+import 'package:flutter_application_1/Category/categorylistpage.dart';
+import 'package:flutter_application_1/Form%20Fill/hostdetailspage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';

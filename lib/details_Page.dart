@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/categpryprovider.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_application_1/Category/category_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -46,10 +47,12 @@ class EventDetailspage extends StatefulWidget {
 
 class _EventDetailspageState extends State<EventDetailspage> {
   bool isloading = true;
+  final _bookformKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     void showBookingDialog(BuildContext context, String eventId) {
+      final _bookformKey = GlobalKey<FormState>();
       TextEditingController nameController = TextEditingController();
       TextEditingController contactController = TextEditingController();
       TextEditingController addressController = TextEditingController();
@@ -59,37 +62,45 @@ class _EventDetailspageState extends State<EventDetailspage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Book Event"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(labelText: "Name"),
-                ),
-                TextField(
-                  controller: contactController,
-                  decoration: InputDecoration(labelText: "Contact Number"),
-                  keyboardType: TextInputType.phone,
-                ),
-                TextField(
-                  controller: addressController,
-                  decoration: InputDecoration(labelText: "Address"),
-                ),
-              ],
+            content: Form(
+              key: _bookformKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    validator: (value) =>
+                        value!.isEmpty ? "Name Required" : null,
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: "Name"),
+                    maxLength: 15,
+                  ),
+                  TextFormField(
+                    validator: (value) =>
+                        value!.isEmpty ? "Contact no Required" : null,
+                    controller: contactController,
+                    decoration: InputDecoration(labelText: "Contact Number"),
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    maxLength: 10,
+                  ),
+                  TextFormField(
+                    validator: (value) =>
+                        value!.isEmpty ? "Address Required" : null,
+                    controller: addressController,
+                    decoration: InputDecoration(labelText: "Address"),
+                    maxLength: 20,
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context), // Close dialog
+                onPressed: () => Navigator.pop(context),
                 child: Text("Cancel"),
               ),
               TextButton(
                 onPressed: () async {
-                  if (nameController.text.isEmpty ||
-                      contactController.text.isEmpty ||
-                      addressController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Please fill all fields')),
-                    );
+                  if (!_bookformKey.currentState!.validate()) {
                     return;
                   }
 
@@ -102,31 +113,30 @@ class _EventDetailspageState extends State<EventDetailspage> {
                       return;
                     }
 
-                    // ✅ Add booking to Firestore
                     await FirebaseFirestore.instance
                         .collection("Bookings")
                         .add({
                       'eventId': eventId,
-                      'bookerId': currentUser.uid, // Store the booker's ID
+                      'bookerId': currentUser.uid,
                       'bookerName': nameController.text,
                       'hosteruid': widget.userid,
                       'bookerContact': contactController.text,
                       'bookerAddress': addressController.text,
                       'timestamp': FieldValue.serverTimestamp(),
+                      'category': widget.category,
                     });
+
                     Navigator.pop(context);
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Booking successful!')),
                     );
-
-                    Navigator.pop(context); // Close dialog after saving
                   } catch (e) {
                     print("Error while booking: $e");
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Error: $e')),
                     );
                   }
-                  Navigator.pop(context);
                 },
                 child: Text("Book Now"),
               ),
@@ -183,13 +193,25 @@ class _EventDetailspageState extends State<EventDetailspage> {
       }
     }
 
-    Future<void> _makePhoneCall() async {
-      final Uri phoneUri = Uri.parse('tel:${widget.cntctno}');
+    Future<void> makePhoneCall() async {
+      try {
+        // Sanitize the phone number
+        String phoneNumber = widget.cntctno.replaceAll(RegExp(r'[^0-9]'), '');
 
-      if (await canLaunchUrl(phoneUri)) {
-        await launchUrl(phoneUri);
-      } else {
-        throw 'Could not launch $phoneUri';
+        final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+
+        if (await canLaunchUrl(phoneUri)) {
+          await launchUrl(phoneUri);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not launch dialer.')),
+          );
+        }
+      } catch (e) {
+        print("Error making phone call: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
       }
     }
 
@@ -231,19 +253,22 @@ class _EventDetailspageState extends State<EventDetailspage> {
                   ),
                 ),
                 SizedBox(
-                  height: 20.h,
+                  height: 10.h,
                 ),
                 Text(widget.eventname.toString(),
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
                         color: Colors.pink)),
+                SizedBox(
+                  height: 10.h,
+                ),
                 Container(
                   height: 70,
                   width: 400,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      color: Colors.pink.shade100),
+                      color: Colors.pinkAccent.shade100),
                   child: Row(
                     children: [
                       Padding(
@@ -259,8 +284,9 @@ class _EventDetailspageState extends State<EventDetailspage> {
                               ),
                               Text(widget.hostname.toString(),
                                   style: GoogleFonts.poppins(
+                                    fontSize: 19,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.black)),
+                                      color: Colors.white)),
                               Text(widget.time,
                                   style: TextStyle(color: Colors.white)),
                             ],
@@ -304,7 +330,7 @@ class _EventDetailspageState extends State<EventDetailspage> {
                                 maxLines: 10,
                                 style: TextStyle(
                                     color:
-                                        Theme.of(context).colorScheme.primary)),
+                                        Colors.black)),
                           ),
                         ),
                       ],
@@ -356,7 +382,7 @@ class _EventDetailspageState extends State<EventDetailspage> {
                               child: Icon(Icons.call,
                                   color: Colors.pink.shade400)),
                           GestureDetector(
-                            onTap: _makePhoneCall,
+                            onTap: makePhoneCall,
                             child: Container(
                               width: 160,
                               height: 60,
@@ -365,7 +391,7 @@ class _EventDetailspageState extends State<EventDetailspage> {
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 23.sp)),
+                                        fontSize: 20.sp)),
                               ),
                             ),
                           ),

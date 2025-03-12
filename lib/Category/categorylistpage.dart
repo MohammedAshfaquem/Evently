@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_application_1/Homepage/homepage.dart';
-import 'package:flutter_application_1/detailPgae.dart';
+import 'package:flutter_application_1/details_Page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
@@ -101,7 +101,7 @@ class CategoryListPage extends StatelessWidget {
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;
-                              return CircularProgressIndicator();
+                              return CircularProgressIndicator(color: Colors.black,);
                             },
                             errorBuilder: (context, error, stackTrace) {
                               return Icon(Icons.broken_image,
@@ -117,7 +117,7 @@ class CategoryListPage extends StatelessWidget {
                   title: Container(
                     width: 100,
                     child: Text(
-                      eventData['hostername'] ?? "Unknown Host",
+                      eventData['eventname'] ?? "Unknown Host",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

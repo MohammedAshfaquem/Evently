@@ -27,7 +27,7 @@ class MyEvents extends StatelessWidget {
             style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1,
-                color: Theme.of(context).colorScheme.primary)),
+                color: Colors.pinkAccent.shade100)),
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(

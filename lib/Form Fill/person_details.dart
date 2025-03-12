@@ -5,9 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/My%20Events/firestoremyevents.dart';
-import 'package:flutter_application_1/categorylistpage.dart';
-import 'package:flutter_application_1/firestoreservuce.dart';
-import 'package:flutter_application_1/textformfiledmodel.dart';
+import 'package:flutter_application_1/Category/categorylistpage.dart';
+import 'package:flutter_application_1/firestoreservice.dart';
+import 'package:flutter_application_1/Form%20Fill/textformfiledmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -109,7 +109,7 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
         context,
         MaterialPageRoute(
           builder: (context) => CategoryListPage(
-            category: widget.eventname,
+            category: widget.category,
           ),
         ),
       );

@@ -156,7 +156,7 @@ class AboutPage extends StatelessWidget {
                   style: TextStyle(fontSize: 16.0, height: 1.5, color: Colors.black),
                 ),
                 Text(
-                  ' 9876543210',
+                  ' 7591937330',
                   style: TextStyle(fontSize: 16.0, height: 1.5, color: Colors.blue),
                 ),
               ],

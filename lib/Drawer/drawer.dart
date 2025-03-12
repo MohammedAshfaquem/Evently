@@ -330,11 +330,16 @@ class _MyDrawerState extends State<MyDrawer> {
                 FutureBuilder(
                   future: getdata.getemail(),
                   builder: (context, snapshot) => snapshot.hasData
-                      ? Text(snapshot.data.toString(),
-                          style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600))
+                      ? Container(
+                        height: 30,
+                        width: 250,
+                        child: Text(snapshot.data.toString(),
+                        overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600)),
+                      )
                       : Text(
                           "Loading",
                           style: TextStyle(color: Colors.white, fontSize: 18),
@@ -376,9 +381,9 @@ class _MyDrawerState extends State<MyDrawer> {
                 MaterialPageRoute(builder: (context) => BookingDetailsPage()),
               );
             },
-            text: "My Bookings",
+            text: "Booker Details",
             colors: Colors.black,
-            icon: Icons.event,
+            icon: Icons.calendar_month_outlined,
           ),
           ProfilePageTile(
             onTap: () {
