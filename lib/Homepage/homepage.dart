@@ -1,11 +1,11 @@
+import 'package:Evently/Carousal%20Slider/imagecontroller.dart';
+import 'package:Evently/Carousal%20Slider/imagemovingmodel.dart';
+import 'package:Evently/Category/category_page.dart';
+import 'package:Evently/Drawer/drawer.dart';
+import 'package:Evently/Homepage/donate_card.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Carousal%20Slider/imagecontroller.dart';
-import 'package:flutter_application_1/Carousal%20Slider/imagemovingmodel.dart';
-import 'package:flutter_application_1/Category/category_page.dart';
-import 'package:flutter_application_1/Homepage/donate_card.dart';
-import 'package:flutter_application_1/Drawer/drawer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';

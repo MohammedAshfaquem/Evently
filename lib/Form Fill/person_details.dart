@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:math';
+import 'package:Evently/Category/categorylistpage.dart';
+import 'package:Evently/Form%20Fill/textformfiledmodel.dart';
+import 'package:Evently/My%20Events/firestoremyevents.dart';
+import 'package:Evently/firestoreservice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/My%20Events/firestoremyevents.dart';
-import 'package:flutter_application_1/Category/categorylistpage.dart';
-import 'package:flutter_application_1/firestoreservice.dart';
-import 'package:flutter_application_1/Form%20Fill/textformfiledmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -35,6 +35,7 @@ class PersonDetailsForm extends StatefulWidget {
 }
 
 class _PersonDetailsFormState extends State<PersonDetailsForm> {
+  bool isSubmitting = false; // Flag to track submission state
   final _personformKey = GlobalKey<FormState>();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
@@ -43,7 +44,6 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
   final FireStoreService fireStoreService = FireStoreService();
   final FireStoreMyServivce fireStoreMyServivce = FireStoreMyServivce();
   String eventId = FirebaseFirestore.instance.collection('Events').doc().id;
-
 
   static const String imgBBApiKey = "ed8e4023ff7954cf55bdc23a566d1efa";
 
@@ -70,10 +70,17 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
   }
 
   void _submitForm() async {
-    if (_personformKey.currentState!.validate()) {
-      String? imageUrl = widget.image != null
-          ? await _uploadImageToImgBB(widget.image!)
-          : null;
+    if (isSubmitting) return; // Prevent multiple submissions
+
+   if (_personformKey.currentState!.validate()) {
+      setState(() {
+        isSubmitting = true; // Disable button
+      });
+
+      try {
+        String? imageUrl = widget.image != null
+            ? await _uploadImageToImgBB(widget.image!)
+            : null;
 
       await FireStoreService().addEvent(
         category: widget.category,
@@ -86,7 +93,6 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
         image: imageUrl ?? "NO_IMAGE",
         time: DateTime.now(),
         eventId: eventId,
-
       );
       await fireStoreMyServivce.addmyevents(
         widget.category,
@@ -113,7 +119,16 @@ class _PersonDetailsFormState extends State<PersonDetailsForm> {
           ),
         ),
       );
-    }
+    }catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to host category: $e")),
+        );
+      }  finally {
+        setState(() {
+          isSubmitting = false; // Re-enable button
+        });
+      }
+   }
   }
 
   @override

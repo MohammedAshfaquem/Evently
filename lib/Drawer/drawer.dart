@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:Evently/Drawer/about_page.dart';
+import 'package:Evently/Drawer/book.dart';
+import 'package:Evently/Drawer/faq_page.dart';
+import 'package:Evently/Drawer/feedback_page.dart';
+import 'package:Evently/Drawer/mybooking.dart';
+import 'package:Evently/Drawer/passreset.dart';
+import 'package:Evently/Drawer/profiletile.dart';
+import 'package:Evently/Drawer/supportpage.dart';
+import 'package:Evently/My%20Events/my_events.dart';
+import 'package:Evently/auth/auth_gate.dart';
+import 'package:Evently/getdata.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Drawer/book.dart';
-import 'package:flutter_application_1/My%20Events/my_events.dart';
-import 'package:flutter_application_1/Drawer/about_page.dart';
-import 'package:flutter_application_1/Drawer/faq_page.dart';
-import 'package:flutter_application_1/Drawer/feedback_page.dart';
-import 'package:flutter_application_1/Drawer/passreset.dart';
-import 'package:flutter_application_1/Drawer/profiletile.dart';
-import 'package:flutter_application_1/Drawer/settings.dart';
-import 'package:flutter_application_1/Drawer/supportpage.dart';
-import 'package:flutter_application_1/auth/auth_gate.dart';
-import 'package:flutter_application_1/getdata.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -121,77 +121,85 @@ class _MyDrawerState extends State<MyDrawer> {
   }
 
   Future<void> _deleteUser(BuildContext context) async {
-    User? currentUser = _auth.currentUser;
+  User? currentUser = _auth.currentUser;
 
-    if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No user found')),
-      );
-      return;
-    }
+  if (currentUser == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('No user found')),
+    );
+    return;
+  }
 
-    try {
-      String userId = currentUser.uid;
+  try {
+    String userId = currentUser.uid;
+    // Step 1: Delete user account from Firebase Authentication
+    await currentUser.delete();
+    print("User account deleted from Firebase Authentication.");
 
-      // Step 1: Delete user's events from Firestore (from all categories)
-      List<String> eventCategories = [
-        "Camera Man",
-        "Makeup Artist",
-        "Caterers",
-        "Invitations"
-      ];
+    // Step 2: Delete user's events from Firestore (from all categories)
+    List<String> eventCategories = [
+      "Camera Man",
+      "Makeup Artist",
+      "Caterers",
+      "Invitations",
+      "Auditoriums"
+    ];
 
-      for (String category in eventCategories) {
-        QuerySnapshot eventsSnapshot = await _firestore
-            .collection("Events")
-            .doc(category)
-            .collection("Listings")
-            .where('uid', isEqualTo: userId)
-            .get();
-
-        for (var doc in eventsSnapshot.docs) {
-          await doc.reference.delete();
-        }
-      }
-      print("User's events deleted from all categories.");
-
-      // Step 2: Delete user's bookings
-      QuerySnapshot bookingsSnapshot = await _firestore
-          .collection('Bookings')
-          .where('userId', isEqualTo: userId)
-          .get();
-      for (var doc in bookingsSnapshot.docs) {
-        await doc.reference.delete();
-      }
-      print("User's bookings deleted.");
-
-      // Step 3: Delete user's feedback
-      QuerySnapshot feedbackSnapshot = await _firestore
-          .collection('Feedback')
+    for (String category in eventCategories) {
+      QuerySnapshot eventsSnapshot = await _firestore
+          .collection("Events")
+          .doc(category)
+          .collection("Listings")
           .where('uid', isEqualTo: userId)
           .get();
-      for (var doc in feedbackSnapshot.docs) {
+
+      for (var doc in eventsSnapshot.docs) {
         await doc.reference.delete();
       }
-      print("User's feedback deleted.");
-
-      // Step 4: Delete user data from Firestore (Users collection)
-      await _firestore.collection('Users').doc(userId).delete();
-      print("User data deleted from Firestore.");
-
-      // Step 5: Delete user account from Firebase Authentication
-      await currentUser.delete();
-      print("User account deleted from Firebase Authentication.");
-
-      // Redirect to login screen after deletion
-      Navigator.pushReplacementNamed(context, '/login');
-    } catch (e) {
-      print("Error deleting user: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting user: $e')),
-      );
     }
+    print("User's events deleted from all categories.");
+
+    // Step 3: Delete user's bookings
+    QuerySnapshot bookingsSnapshot = await _firestore
+        .collection('Bookings')
+        .where('userId', isEqualTo: userId)
+        .get();
+    for (var doc in bookingsSnapshot.docs) {
+      await doc.reference.delete();
+    }
+    print("User's bookings deleted.");
+
+    // Step 3: Delete user's feedback
+    QuerySnapshot feedbackSnapshot = await _firestore
+        .collection('Feedback')
+        .where('uid', isEqualTo: userId)
+        .get();
+    for (var doc in feedbackSnapshot.docs) {
+      await doc.reference.delete();
+    }
+    print("User's feedback deleted.");
+
+    // Step 4: Delete user data from Firestore (Users collection)
+    await _firestore.collection('Users').doc(userId).delete();
+    print("User data deleted from Firestore.");
+
+    // Step 5: Sign out before deleting the account
+    await FirebaseAuth.instance.signOut();
+
+
+    // Step 7: Redirect to login screen safely
+    Future.delayed(Duration(milliseconds: 500), () {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthGate(),));
+    });
+
+  } catch (e) {
+    print("Error deleting user: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error deleting user: $e')),
+    );
   }
+}
+
 
   void _showRatingDialog(BuildContext context) {
     showDialog(
@@ -381,7 +389,18 @@ class _MyDrawerState extends State<MyDrawer> {
                 MaterialPageRoute(builder: (context) => BookingDetailsPage()),
               );
             },
-            text: "Booker Details",
+            text: "Vendor Dashboard",
+            colors: Colors.black,
+            icon: Icons.calendar_month_outlined,
+          ),
+             ProfilePageTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Mybooking()),
+              );
+            },
+            text: "My Bookings",
             colors: Colors.black,
             icon: Icons.calendar_month_outlined,
           ),

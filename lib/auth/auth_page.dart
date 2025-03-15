@@ -1,7 +1,7 @@
 
+import 'package:Evently/auth/login.dart';
+import 'package:Evently/auth/signuppage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/auth/login.dart';
-import 'package:flutter_application_1/auth/signuppage.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});

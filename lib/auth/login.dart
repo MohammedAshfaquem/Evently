@@ -1,5 +1,7 @@
+import 'package:Evently/auth/auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/auth/auth_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -17,16 +19,20 @@ class _LoginPageState extends State<LoginPage> {
   final _loginformkey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final Authservice _authservice = Authservice();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Validate Email
   String? _validateEmail(String? email) {
     final RegExp emailRegex =
-        RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}");
+        RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
     if (email == null || email.isEmpty || !emailRegex.hasMatch(email)) {
       return 'Please enter a valid email';
     }
     return null;
   }
 
+  // Validate Password
   String? _validatePassword(String? password) {
     if (password == null || password.isEmpty) {
       return 'Please enter your password';
@@ -34,19 +40,55 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  void loginemail() async {
-    final authservice = Authservice();
+  // Handle Login and Password Update
+  Future<void> loginemail() async {
+    if (!_loginformkey.currentState!.validate()) {
+      return; // Stop login if validation fails
+    }
 
     try {
-      await authservice.signInWithEmailAndPassword(
-          _emailController.text, _passwordController.text);
+      // Authenticate User
+      UserCredential userCredential =
+          await _authservice.signInWithEmailAndPassword(
+              _emailController.text.trim(), _passwordController.text.trim());
+
+      // Get user ID
+      String userId = userCredential.user!.uid;
+
+      // Retrieve the current password stored in Firestore
+      DocumentSnapshot userDoc =
+          await _firestore.collection('Users').doc(userId).get();
+
+      if (userDoc.exists) {
+        Map<String, dynamic>? userData =
+            userDoc.data() as Map<String, dynamic>?;
+
+        if (userData != null) {
+          String? storedPassword = userData['password'];
+
+          // Check if password has changed
+          if (storedPassword != _passwordController.text.trim()) {
+            // Update password in Firestore
+            await _firestore.collection('Users').doc(userId).update({
+              'password': _passwordController.text.trim(),
+              'passwordUpdatedAt': FieldValue.serverTimestamp(),
+            });
+          }
+        }
+      }
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Login Successful!"), backgroundColor: Colors.green),
+      );
     } catch (e) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: Text(
             e.toString(),
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            style: TextStyle(color: Colors.black),
           ),
         ),
       );
@@ -73,53 +115,38 @@ class _LoginPageState extends State<LoginPage> {
               _buildHeader(),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Form(
-                  // key: _formKey,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 80,
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          "Email",
+                child: Column(
+                  children: [
+                    SizedBox(height: 80),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text("Email",
                           style:
-                              GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      _buildTextField(
-                          controller: _emailController,
-                          hintText: "Email",
-                          icon: Icons.email,
-                          validator: _validateEmail),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          "Password",
+                              GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                    ),
+                    SizedBox(height: 15),
+                    _buildTextField(
+                        controller: _emailController,
+                        hintText: "Email",
+                        icon: Icons.email,
+                        validator: _validateEmail),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text("Password",
                           style:
-                              GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      _buildTextField(
-                          controller: _passwordController,
-                          hintText: "Password",
-                          icon: Icons.lock,
-                          isPassword: true,
-                          validator: _validatePassword),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      _buildLoginButton(),
-                      _buildRegisterRedirect(),
-                    ],
-                  ),
+                              GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                    ),
+                    SizedBox(height: 15),
+                    _buildTextField(
+                        controller: _passwordController,
+                        hintText: "Password",
+                        icon: Icons.lock,
+                        isPassword: true,
+                        validator: _validatePassword),
+                    SizedBox(height: 30),
+                    _buildLoginButton(),
+                    _buildRegisterRedirect(),
+                  ],
                 ),
               ),
             ],
@@ -174,11 +201,10 @@ class _LoginPageState extends State<LoginPage> {
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
-                    _isPasswordObscured
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                    color: Colors.grey,
-                  ),
+                      _isPasswordObscured
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.grey),
                   onPressed: () {
                     setState(() {
                       _isPasswordObscured = !_isPasswordObscured;
@@ -207,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildLoginButton() {
     return GestureDetector(
-      onTap: () => loginemail(),
+      onTap: loginemail,
       child: Container(
         height: 50.h,
         width: double.infinity,

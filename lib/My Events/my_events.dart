@@ -111,7 +111,7 @@ class MyEvents extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Text(
-                                event['hostername'] ?? "No Name",
+                                event['eventname'] ?? "No Name",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,

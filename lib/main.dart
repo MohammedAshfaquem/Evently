@@ -1,8 +1,9 @@
+import 'package:Evently/Carousal%20Slider/imagecontroller.dart';
+import 'package:Evently/Category/category_provider.dart';
+import 'package:Evently/auth/auth_gate.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Carousal%20Slider/imagecontroller.dart';
-import 'package:flutter_application_1/auth/auth_gate.dart';
-import 'package:flutter_application_1/Category/category_provider.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 

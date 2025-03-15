@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:Evently/Form%20Fill/person_details.dart';
+import 'package:Evently/Form%20Fill/textformfiledmodel.dart';
+import 'package:Evently/firestoreservice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/Category/categorylistpage.dart';
-import 'package:flutter_application_1/Category/category_provider.dart';
-import 'package:flutter_application_1/firestoreservice.dart';
-import 'package:flutter_application_1/Form%20Fill/person_details.dart';
-import 'package:flutter_application_1/Form%20Fill/textformfiledmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
