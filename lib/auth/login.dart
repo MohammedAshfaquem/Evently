@@ -1,4 +1,5 @@
 import 'package:Evently/auth/auth_service.dart';
+import 'package:Evently/forgetpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -136,14 +137,36 @@ class _LoginPageState extends State<LoginPage> {
                           style:
                               GoogleFonts.poppins(fontWeight: FontWeight.bold)),
                     ),
-                    SizedBox(height: 15),
                     _buildTextField(
                         controller: _passwordController,
                         hintText: "Password",
                         icon: Icons.lock,
                         isPassword: true,
                         validator: _validatePassword),
-                    SizedBox(height: 30),
+                          Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: 5.h,
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const Forgetpage(),
+                                  )),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only( right: 15).w,
+                                child: Text("Forget password?",
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.pinkAccent.shade100,
+                                        fontWeight: FontWeight.w500)),
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 10.h,),
                     _buildLoginButton(),
                     _buildRegisterRedirect(),
                   ],
